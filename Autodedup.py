@@ -2,11 +2,11 @@ import csv
 #Import Process
 import re
 #Deduplication
-#Input is six csv files, each with their respective fax or email or wevbform stats
-#output will be three lists of lists, of deduped and combined email, fax and webform stats
+#Input is two txt files, one from each cluster, with relevant and irrelevant data
+#output will be four arrays of deduped and combined email, fax, webform and combined stats
 
 #convert the txt file into a list of lists
-#This just shows the order of how stuff is stored in the superList
+#This just shows the order of how stuff is stored in the 'database'
 csvS = ['Email2.csv', 'Email3.csv', 'Fax2.csv', 'Fax3.csv', 'Web2.csv', 'Web3.csv']
 
 def deduping(theList):
@@ -23,26 +23,6 @@ def deduping(theList):
                 listOLists[x][y][2] = int(listOLists[x][y][2])
                 listOLists[x][y][3] = int(listOLists[x][y][3])
                 listOLists[x][y][4] = int(listOLists[x][y][4])
-                
-    #now run a check
-#    for x in range(len(listOLists)):
- #       for y in range(len(listOLists[x])):
-  #          if len(listOLists[x][y]) == 6:
-   #             if listOLists[x][y][1] + listOLists[x][y][2] != listOLists[x][y][3]:
-    #                if x ==0:
-     #                   print 'input ' + "email" + " Error!", listOLists[x][y]
-      #              if x ==1:
-       #                 print 'input ' + "email" + " Error!", listOLists[x][y]
-        #            if x == 2:
-         #               print 'input ' + "fax" + " Error!", listOLists[x][y]
-          #          if x == 3:
-           #             print 'input ' + "fax" + " Error!", listOLists[x][y]
-            #else:
-             #   if listOLists[x][y][2] + listOLists[x][y][3] != listOLists[x][y][4]:
-              #      if x == 4:
-               #         print 'input ' + "webform" + " Error!", listOLists[x][y]
-                #    if x == 5 :
-                 #       print 'input ' + "webform" + " Error!", listOLists[x][y]
 
     #now we will deduplicate and combine Email2 with Email3, Fax2 with Fax3, etc. 
     # This only deduplicates across the two clusters, not within them
@@ -58,7 +38,7 @@ def deduping(theList):
                 #check the rep_id, the zeroeth term in each list
 #                print y, listOLists[x+1][y][0], z, listOLists[x][z][0]#This is a check to measure efficiency, how often this got cycled
 #                if len(listOLists[x][z][5]) == 'Mike Gatto':
- #                   print listOLists[x][z], listOLists[x+1][y] # This was to see what is compared to what. Not all terms are compared at this point, reason unknown
+ #                   print listOLists[x][z], listOLists[x+1][y] # This was to see what is compared to what. Not all terms are compared at this point, but fixed (8/21/2014)
                 if listOLists[x+1][y][0] == listOLists[x][z][0]:
                     #For email and fax
                     if len(listOLists[x][z]) == 6:
@@ -86,6 +66,7 @@ def deduping(theList):
             finalDeduped += [dedupedLists[x]]
             
     #now we will do cleanup, remove consecutive duplicate rep_id's from within the clusters that have multiple Districts
+    #and combine the data from the random datasplits
     #search through all the lists
     
     for x in range(len(finalDeduped)):
@@ -116,7 +97,7 @@ def deduping(theList):
 #            print x, stuffToBeDeleted, stuffToBeDeleted[z]
             finalDeduped[x].remove(stuffToBeDeleted[z])
     
-    #now search through the whole list to combine non-consecutive REP_ID's that failed to combine in the first run through
+    #now search through the whole list to combine non-consecutive REP_ID's
     #Sort the list by REP_ID from smallest to greatest
     #the sorting algorithm, M is the datatable, p is the position we are checking
     def mergeSort(m,p):
@@ -196,13 +177,6 @@ def deduping(theList):
     #Now sort by bad from highest to lowest
     for x in range(len(finalDeduped)):
         mergeSort(finalDeduped[x],1)
-        
-    #Now trim the folloowing ':' of finalDeduped[x][y][4] if it has one
-#    for x in range(len(finalDeduped)):
- #       for y in range(len(finalDeduped[x])):
-  #          length = len(finalDeduped[x][y][4])
-   #         if finalDeduped[x][y][4][length - 1] == ':':
-    #            finalDeduped[x][y][4] = finalDeduped[x][y][4][:length - 1]
                 
     #Now remove all  "Vacant" from email list. Vacant has 2 leading spaces
     toBeRemoved = []
@@ -302,20 +276,6 @@ def deduping(theList):
         writer = csv.writer(csvfile)
         writer.writerows(CSVReady)
         
-    #now run a check
-#    for x in range(len(finalDeduped)):
- #       for y in range(len(finalDeduped[x])):
-  #          if type(finalDeduped[x][y][0]) != int:
-   #             continue
-    #        if finalDeduped[x][y][0] + finalDeduped[x][y][1] != finalDeduped[x][y][2]:
-     #           if x ==0:
-      #              print "email" + " Error!", finalDeduped[x][y]
-       #         if x == 2:
-        #            print "webform" + " Error!", finalDeduped[x][y]
-         #       if x == 1:
-          #          print "fax" + " Error!", finalDeduped[x][y]
-           #     if x == 3 :
-            #        print "summary" + " Error!", finalDeduped[x][y]
     print 'rawDedupedData delivered!'
     return 'rawDedupedData delivered!'
 
